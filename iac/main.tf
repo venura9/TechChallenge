@@ -15,17 +15,15 @@ terraform {
       version = "~> 2.12"
     }
   }
-}
-
-terraform {
-  backend "remote" {
-    hostname = "app.terraform.io"
-    organization = "venura9"
-
-    workspaces {
-      name = "app-prd"
-    }
-  }
+  
+#  backend "remote" {
+#    hostname = "app.terraform.io"
+#    organization = "venura9"
+#
+#    workspaces {
+#      name = "app-prd"
+#    }
+#  }
 }
 
 provider "azurerm" {
