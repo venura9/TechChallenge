@@ -15,13 +15,15 @@ terraform {
       version = "~> 2.12"
     }
   }
+}
 
+terraform {
   backend "remote" {
     hostname = "app.terraform.io"
     organization = "venura9"
 
     workspaces {
-      prefix = "app-"
+      name = "app-prd"
     }
   }
 }
