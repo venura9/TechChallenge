@@ -5,7 +5,7 @@ terraform {
       version = "~> 2.12"
     }
   }
-  
+
   backend "remote" {}
 }
 
