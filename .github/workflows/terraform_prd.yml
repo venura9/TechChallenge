@@ -6,11 +6,11 @@ on:
     - master
     paths:
     - 'iac/**'
-    - '.github/workflows/terraform.yml'
+    - '.github/workflows/terraform_prd.yml'
   pull_request:
     paths:
     - 'iac/**'
-    - '.github/workflows/terraform.yml'
+    - '.github/workflows/terraform_prd.yml'
 
 jobs:
   terraform:
