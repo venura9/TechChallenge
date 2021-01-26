@@ -1,10 +1,10 @@
 variable "app-name" {
-  type = string
+  type    = string
   default = "to-do-app"
 }
 
 variable "app-location" {
-  type = string
+  type    = string
   default = "australiaeast"
 }
 
@@ -15,15 +15,15 @@ terraform {
       version = "~> 2.12"
     }
   }
-  
-#  backend "remote" {
-#    hostname = "app.terraform.io"
-#    organization = "venura9"
-#
-#    workspaces {
-#      name = "app-prd"
-#    }
-#  }
+
+  #  backend "remote" {
+  #    hostname = "app.terraform.io"
+  #    organization = "venura9"
+  #
+  #    workspaces {
+  #      name = "app-prd"
+  #    }
+  #  }
 }
 
 provider "azurerm" {
