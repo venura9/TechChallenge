@@ -1,13 +1,3 @@
-variable "app-name" {
-  type    = string
-  default = "to-do-app"
-}
-
-variable "app-location" {
-  type    = string
-  default = "australiaeast"
-}
-
 terraform {
   required_providers {
     azurerm = {
@@ -15,19 +5,16 @@ terraform {
       version = "~> 2.12"
     }
   }
-
-  #  backend "remote" {
-  #    hostname = "app.terraform.io"
-  #    organization = "venura9"
-  #
-  #    workspaces {
-  #      name = "app-prd"
-  #    }
-  #  }
+  
+  backend "remote" {}
 }
 
 provider "azurerm" {
   features {}
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
 }
 
 
