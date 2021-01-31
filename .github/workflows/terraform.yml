@@ -4,20 +4,21 @@ on:
   push:
     branches:
     - master
+    - develop
     paths:
     - 'iac/**'
-    - '.github/workflows/terraform_prd.yml'
+    - '.github/workflows/terraform.yml'
   pull_request:
     paths:
     - 'iac/**'
-    - '.github/workflows/terraform_prd.yml'
+    - '.github/workflows/terraform.yml'
 
 jobs:
   prd:
     environment: prd
     name: 'Terraform Prod'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
