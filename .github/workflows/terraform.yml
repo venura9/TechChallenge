@@ -71,7 +71,7 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
-    - uses: venura9/tf-azure-policy@main
+    - uses: venura9/TechChallengeApp@develop
       with:
         TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
         BACKEND_CONFIG: prd.backend.hcl
