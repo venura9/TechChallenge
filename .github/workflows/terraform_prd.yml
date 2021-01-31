@@ -13,10 +13,11 @@ on:
     - '.github/workflows/terraform_prd.yml'
 
 jobs:
-  terraform:
+  prd:
     environment: prd
-    name: 'Terraform'
+    name: 'Terraform Prod'
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -53,3 +54,23 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: terraform apply -auto-approve
+
+  dev:
+    environment: dev
+    name: 'Terraform Development'
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./iac
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+    - uses: venura9/tf-azure-policy@main
+      with:
+        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        BACKEND_CONFIG: prd.backend.hcl
