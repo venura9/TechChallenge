@@ -29,40 +29,6 @@ resource "azurerm_container_registry" "acr" {
   admin_enabled       = true
 }
 
-
-# resource "null_resource" "azure-cli" {
-  
-#   provisioner "local-exec" {
-#     # azure cli script
-#     command = "run.sh"
-
-#     # terraform derived values and varialbes as env variables
-#     environment {
-#       webappname = "${azurerm_app_service.demo.name}"
-#       resourceGroup = ${azurerm_resource_group.demo.name}
-#     }
-#   }
-
-#   depends_on = [ azurerm_app_service.webapp ]
-# }
-
-# resource "azurerm_container_registry_webhook" "webhook" {
-#   name                = replace("${var.app-name}-webhook", "-", "")
-#   resource_group_name = azurerm_resource_group.rg.name
-#   registry_name       = azurerm_container_registry.acr.name
-#   location            = azurerm_resource_group.rg.location
-
-#   service_uri = "https://mywebhookreceiver.example/mytag"
-#   status      = "enabled"
-#   scope       = "${var.app-name}:latest"
-#   actions     = ["push"]
-#   custom_headers = {
-#     "Content-Type" = "application/json"
-#   }
-
-#   depends_on = [ azurerm_app_service.webapp ]
-# }
-
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.app-name}-virtual-network"
   address_space       = ["10.0.0.0/16"]
@@ -107,7 +73,7 @@ resource "azurerm_app_service" "webapp" {
   https_only          = true
 
   site_config {
-    linux_fx_version = "DOCKER|nginx:latest"
+    linux_fx_version  = "DOCKER|nginx:latest"
     health_check_path = "/healthcheck/"
   }
 
@@ -116,7 +82,11 @@ resource "azurerm_app_service" "webapp" {
     "DOCKER_REGISTRY_SERVER_URL"      = azurerm_container_registry.acr.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = azurerm_container_registry.acr.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD" = azurerm_container_registry.acr.admin_password
-    "DOCKER_ENABLE_CI"                = "true"  
+    "DOCKER_ENABLE_CI"                = "true"
+    "VTT_DBHOST" = "${azurerm_postgresql_server.pg_server.name}.postgres.database.azure.com"
+    "VTT_DBUSER" = "${var.db_user}@\\${azurerm_postgresql_server.pg_server.name}"
+    "VTT_DBPASSWORD" = var.db_password
+    "VTT_DBNAME" = azurerm_postgresql_database.pg_db.name
   }
 
 }
@@ -187,16 +157,28 @@ resource "azurerm_app_service_virtual_network_swift_connection" "vnet-intgr" {
 }
 
 
-# data "external" "example" {
-#   # program = ["az", " webapp deployment container show-cd-url --name todo-app-webapp --resource-group todo-app-rg"]
+resource "azurerm_postgresql_server" "pg_server" {
+  name                = "${var.app-name}-pgserver"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
-#   program = ["/bin/bash", "./run.sh"]
+  sku_name = "B_Gen5_1"
 
-#   # query = {
-#   #   # arbitrary map from strings to strings, passed
-#   #   # to the external program as the data query.
-#   #   id = "abc123"
-#   # }
+  storage_mb                   = 5120
+  backup_retention_days        = 7
+  geo_redundant_backup_enabled = false
+  auto_grow_enabled            = true
 
-#   depends_on = [azurerm_app_service.webapp]
-# }
+  administrator_login          = var.db_user
+  administrator_login_password = var.db_password
+  version                      = "9.6"
+  ssl_enforcement_enabled      = true
+}
+
+resource "azurerm_postgresql_database" "pg_db" {
+  name                = "${var.app-name}-pgdb"
+  resource_group_name = azurerm_resource_group.rg.name
+  server_name         = azurerm_postgresql_server.pg_server.name
+  charset             = "UTF8"
+  collation           = "English_United States.1252"
+}

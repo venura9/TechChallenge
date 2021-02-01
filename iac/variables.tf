@@ -1,6 +1,5 @@
 variable "app-name" {
   type    = string
-  default = "todo-app"
 }
 
 variable "app-location" {
@@ -18,8 +17,18 @@ variable "client_id" {
 
 variable "client_secret" {
   type = string
+  sensitive = true
 }
 
 variable "tenant_id" {
   type = string
+}
+
+variable "db_user" {
+  type = string
+}
+
+variable "db_password" {
+  type = string
+  sensitive = true
 }
