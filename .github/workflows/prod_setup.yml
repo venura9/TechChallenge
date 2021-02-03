@@ -1,3 +1,5 @@
+name: 'Terraform Prod'
+
 on:
   workflow_dispatch:
 
@@ -11,7 +13,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./iac
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -27,25 +28,34 @@ jobs:
     # Initialize the prod backend
     - name: Terraform Init
       run: terraform init -backend-config=prd.backend.hcl
-    
+      working-directory: ./iac
     
     # Initialize the prod backend
-    - name: Docker Push
+    - name: Set the env vars 
       run: |
-        DOCKER_HOST=$(terraform output docker_host)
-        DOCKER_HOST=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_HOST)
+          DOCKER_HOST=$(terraform output docker_host)
+          DOCKER_HOST=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_HOST)
 
-        DOCKER_USER=$(terraform output docker_user)
-        DOCKER_USER=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_USER)
+          DOCKER_USER=$(terraform output docker_user)
+          DOCKER_USER=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_USER)
 
-        DOCKER_PASSWORD=$(terraform output docker_password)
-        DOCKER_PASSWORD=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_PASSWORD)
+          DOCKER_PASSWORD=$(terraform output docker_password)
+          DOCKER_PASSWORD=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_PASSWORD)
 
-        DOCKER_IMAGE_SCOPE=$(terraform output docker_image_scope)
-        DOCKER_IMAGE_SCOPE=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_IMAGE_SCOPE)
+          DOCKER_IMAGE_SCOPE=$(terraform output docker_image_scope)
+          DOCKER_IMAGE_SCOPE=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_IMAGE_SCOPE)
 
-        docker login $DOCKER_HOST -u $DOCKER_USER -p $DOCKER_PASSWORD
-        docker build . -t $DOCKER_IMAGE_SCOPE
-        docker push ${DOCKER_HOST}/${DOCKER_IMAGE_SCOPE}
-    
-    
+          echo "DOCKER_HOST=$DOCKER_HOST" >> $GITHUB_ENV
+          echo "DOCKER_USER=$DOCKER_USER" >> $GITHUB_ENV
+          echo "DOCKER_PASSWORD=$DOCKER_PASSWORD" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_SCOPE=$DOCKER_IMAGE_SCOPE" >> $GITHUB_ENV
+      working-directory: ./iac
+
+    - name: Docker Push 
+      run: |
+          docker login $DOCKER_HOST -u $DOCKER_USER -p $DOCKER_PASSWORD 
+          docker build . -t $DOCKER_IMAGE_SCOPE
+          docker push ${DOCKER_HOST}/${DOCKER_IMAGE_SCOPE}
+
+      working-directory: ./iac
+
