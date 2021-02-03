@@ -12,7 +12,6 @@ terraform {
   backend "remote" {}
 }
 
-#all the varialbles and the environment varialbles are defined in the `remote` backend
 provider "azurerm" {
   features {}
 }
@@ -22,16 +21,7 @@ resource "azurerm_resource_group" "rg" {
   location = var.app-location
 }
 
-# Container registry 
-resource "azurerm_container_registry" "acr" {
-  name                = replace("${var.environment}-${var.app-name}-acr", "-", "")
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku                 = "Basic"
-  admin_enabled       = true
-
-}
-
+#--------------------network--------------------#
 # application VNET with the integration subbet
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.environment}-${var.app-name}-virtual-network"
@@ -57,7 +47,7 @@ resource "azurerm_subnet" "vnet-intgr-subnet" {
   }
 }
 
-
+#--------------------webapp--------------------#
 #app service with linux/docker and vnet integration
 resource "azurerm_app_service_plan" "asp" {
   name                = "${var.environment}-${var.app-name}-asp"
@@ -169,7 +159,7 @@ resource "azurerm_monitor_autoscale_setting" "cpuscale" {
     }
   }
 }
-
+#--------------------database--------------------#
 # pgsql db server and the database, service endpoint created with the integration subnet 
 resource "azurerm_postgresql_server" "pg_server" {
   name                = replace("${var.environment}-${var.app-name}-pgserver", "-", "") # `updatedb` didn't like the dashes in the name
@@ -206,7 +196,18 @@ resource "azurerm_postgresql_virtual_network_rule" "example" {
   ignore_missing_vnet_service_endpoint = true
 }
 
+#--------------------acr--------------------#
+# azure container registry 
+resource "azurerm_container_registry" "acr" {
+  name                = replace("${var.environment}-${var.app-name}-acr", "-", "")
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = true
 
+}
+
+#--------------------webhook--------------------#
 #get and save the webhook to a file
 resource "null_resource" "azure-cli" {
 
@@ -227,6 +228,12 @@ resource "null_resource" "azure-cli" {
   depends_on = [azurerm_app_service.webapp]
 }
 
+data "local_file" "cicd_url" {
+  filename   = "./cicd_url"
+  depends_on = [null_resource.azure-cli]
+}
+
+#webhook to be called when there's a new image in acr
 resource "azurerm_container_registry_webhook" "webhook" {
   name                = replace("${var.environment}-${var.app-name}-webhook", "-", "")
   resource_group_name = azurerm_resource_group.rg.name
@@ -238,10 +245,5 @@ resource "azurerm_container_registry_webhook" "webhook" {
   scope       = replace("${var.app-name}/${var.environment}:latest", "-", "")
   actions     = ["push"]
 
-  depends_on = [null_resource.azure-cli]
-}
-
-data "local_file" "cicd_url" {
-  filename   = "./cicd_url"
   depends_on = [null_resource.azure-cli]
 }
