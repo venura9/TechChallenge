@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - master
-    - develop # for testing to be removed
     paths:
     - 'iac/**'
     - '.github/workflows/prod_pipeline.yml'
@@ -18,7 +17,7 @@ jobs:
     environment: prd
     name: 'Terraform Prod'
     runs-on: ubuntu-latest
-#     if: github.ref == 'refs/heads/master' # for testing to be uncommented
+    if: github.ref == 'refs/heads/master'
 
     # using bash and the iac folder by default
     defaults:
