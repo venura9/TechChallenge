@@ -2,7 +2,7 @@ variable "app-name" {
   type = string
 }
 
-variable "db_password" {
+variable "db-password" {
   type      = string
   sensitive = true
 }
@@ -12,11 +12,16 @@ variable "app-location" {
   default = "australiaeast"
 }
 
-variable "db_user" {
+variable "db-user" {
   type = string
 }
 
-variable "container_scope" {
-  type      = string
-  default = "todoapp"
+# variable "container_scope" {
+#   type      = string
+#   default = "todoapp"
+# }
+
+variable "environment" {
+  type    = string
+  default = "prd"
 }
