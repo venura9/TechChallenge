@@ -9,7 +9,6 @@ jobs:
     name: 'Terraform Prod'
     runs-on: ubuntu-latest
 
-    # using bash and the iac folder by default
     defaults:
       run:
         shell: bash
@@ -45,10 +44,10 @@ jobs:
           DOCKER_IMAGE_SCOPE=$(terraform output docker_image_scope)
           DOCKER_IMAGE_SCOPE=$(sed -e 's/^"//' -e 's/"$//' <<< $DOCKER_IMAGE_SCOPE)
 
-          echo "DOCKER_HOST=$DOCKER_HOST" >> $GITHUB_ENV
-          echo "DOCKER_USER=$DOCKER_USER" >> $GITHUB_ENV
-          echo "DOCKER_PASSWORD=$DOCKER_PASSWORD" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE_SCOPE=$DOCKER_IMAGE_SCOPE" >> $GITHUB_ENV
+          echo "DOCKER_HOST=${DOCKER_HOST}" >> $GITHUB_ENV
+          echo "DOCKER_USER=${DOCKER_USER}" >> $GITHUB_ENV
+          echo "DOCKER_PASSWORD=${DOCKER_PASSWORD}" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_SCOPE=${DOCKER_IMAGE_SCOPE}" >> $GITHUB_ENV
       working-directory: ./iac
 
     - name: Docker Push 
