@@ -18,7 +18,7 @@ jobs:
     environment: prd
     name: 'Terraform Prod'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+#     if: github.ref == 'refs/heads/master' # for testing to be uncommented
 
     # using bash and the iac folder by default
     defaults:
