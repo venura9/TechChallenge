@@ -1,6 +1,10 @@
 variable "app-name" {
-  type    = string
-  default = "todo-app"
+  type = string
+}
+
+variable "db-password" {
+  type      = string
+  sensitive = true
 }
 
 variable "app-location" {
@@ -8,18 +12,16 @@ variable "app-location" {
   default = "australiaeast"
 }
 
-variable "subscription_id" {
+variable "db-user" {
   type = string
 }
 
-variable "client_id" {
-  type = string
-}
+# variable "container_scope" {
+#   type      = string
+#   default = "todoapp"
+# }
 
-variable "client_secret" {
-  type = string
-}
-
-variable "tenant_id" {
-  type = string
+variable "environment" {
+  type    = string
+  default = "prd"
 }

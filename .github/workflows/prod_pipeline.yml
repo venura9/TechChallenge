@@ -1,25 +1,26 @@
-name: 'Terraform'
+name: 'Production Deployment'
 
 on:
   push:
     branches:
     - master
+    - develop # for testing to be removed
     paths:
     - 'iac/**'
-    - '.github/workflows/terraform_prd.yml'
+    - '.github/workflows/prod_pipeline.yml'
   pull_request:
     paths:
     - 'iac/**'
-    - '.github/workflows/terraform_prd.yml'
+    - '.github/workflows/prod_pipeline.yml'
 
 jobs:
   prd:
     environment: prd
     name: 'Terraform Prod'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+#     if: github.ref == 'refs/heads/master' # for testing to be uncommented
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    # using bash and the iac folder by default
     defaults:
       run:
         shell: bash
@@ -36,7 +37,7 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    # Initialize the prod backend
     - name: Terraform Init
       run: terraform init -backend-config=prd.backend.hcl
 
@@ -52,25 +53,5 @@ jobs:
     # On push to master, build or change infrastructure according to Terraform configuration files
     # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      if: github.event_name == 'push'
       run: terraform apply -auto-approve
-
-  dev:
-    environment: dev
-    name: 'Terraform Development'
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./iac
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
-    - uses: venura9/tf-azure-policy@main
-      with:
-        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-        BACKEND_CONFIG: prd.backend.hcl
