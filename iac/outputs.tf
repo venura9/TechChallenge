@@ -7,7 +7,7 @@ output "docker_user" {
 }
 
 output "docker_password" {
-  value = azurerm_container_registry.acr.admin_password
+  value     = azurerm_container_registry.acr.admin_password
   sensitive = true
 }
 
@@ -24,7 +24,7 @@ output "db_user" {
 }
 
 output "db_password" {
-  value = var.db-password
+  value     = var.db-password
   sensitive = true
 }
 

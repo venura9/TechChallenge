@@ -16,11 +16,6 @@ variable "db-user" {
   type = string
 }
 
-# variable "container_scope" {
-#   type      = string
-#   default = "todoapp"
-# }
-
 variable "environment" {
   type    = string
   default = "prd"
