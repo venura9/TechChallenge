@@ -108,18 +108,18 @@
 And the github actions workflow does the provisioning for the environment. Workflow is at `.github/workflows/prod_pipeline.yml`
 - As long as the environment variables are configured along with the varibles the deployment should be straight forward using terraform. 
 
-Environment variables required for the backend: https://www.terraform.io/docs/language/settings/backends/azurerm.html
-ARM_CLIENT_ID
-ARM_TENANT_ID
-ARM_SUBSCRIPTION_ID
-ARM_CLIENT_SECRET(Sensitive)
+> ** Environment variables required for the backend as per: https://www.terraform.io/docs/language/settings/backends/azurerm.html
+> - ARM_CLIENT_ID
+> - ARM_TENANT_ID
+> - ARM_SUBSCRIPTION_ID
+> - ARM_CLIENT_SECRET(Sensitive)
 
-Minumum variables required
-db-user - user for the db connection strings
-app-name - name for the app
-app-location - primary azure location
-environment - prd, dev, etc.
-db-password (Sensitive) - ****
+> ** Variables required
+> - db-user - user for the db connection strings
+> - app-name - name for the app
+> - app-location - primary azure location
+> - environment - prd, dev, etc.
+> - db-password (Sensitive) - ****
 
 - `<env>.backend.hcl` needs to be passed at the point of `terraform init` (current source uses `prd` for `<env>`) E.g. `terraform init -backend-config=prd.backend.hcl`
 
@@ -127,3 +127,14 @@ db-password (Sensitive) - ****
 
 - For this scenario the github actions workflow `apply` to `prd` from master for ‘push’ and only plans for ‘pull_request’ to `master`
 - One time setup needs to be completed by running `./docker.sh` from the `iac` folder. (you will need to init the correct terraform workspace before running this. recommend running it from a bastion host with access to the database. Otherwise a temporary network rule needs to be added to the pgsql db server. )
+
+## Workarounds 
+
+- It was not possible to retrieve the ci/cd webhook link natively though terraform. 
+- `null_resource` and `local_file` data source was used as a change that always run. 
+- This should be changed overtime when things improve with the ARM control plane.
+
+## Links
+
+- A Successful Deployment Run: https://github.com/venura9/TechChallengeApp/runs/1828083189?check_suite_focus=true
+- Deployed app: https://prd-todo-app-webapp.azurewebsites.net (if there's enough credits left - will be taken down on the 10th Feb 2021)
