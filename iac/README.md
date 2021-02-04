@@ -125,7 +125,7 @@
 
 >> *** Note: Tested code was using terraform cloud as the secret storage. 
 
-- For this scenario the github actions workflow `apply` to `prd` from master for ‘push’ and only plans for ‘pull_request’ to `master`
+- For this scenario the github actions workflow will `terraform apply` to environment `prd` from master for ‘push’ and only plans for ‘pull_request’
 - One time setup needs to be completed by running `./docker.sh` from the `iac` folder. (you will need to init the correct terraform workspace before running this. recommend running it from a bastion host with access to the database. Otherwise a temporary network rule needs to be added to the pgsql db server. )
 
 ## Workarounds 
