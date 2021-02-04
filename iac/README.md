@@ -24,6 +24,7 @@
 > - Terraform improvements 
 > -- Modularise for reusability
 > -- Remove hardcoded values from the source code and bloat the variables section.
+> - Use https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret for secrets
 
 ```
                                     +-------------------------------------------------------------------------------------+
@@ -104,6 +105,25 @@
 
 ## Process instructions for provisioning the solution.
 - Everything is contained in the `iac` folder
-And the github actions workflow does the provisioning for the environment. `.github/workflows/prod_pipeline.yml` as long as the environment variables are configured along with the varibles.
-- The github actions workflow `apply` to prod from master for ‘push’ and only plans for ‘pull_request’
+And the github actions workflow does the provisioning for the environment. Workflow is at `.github/workflows/prod_pipeline.yml`
+- As long as the environment variables are configured along with the varibles the deployment should be straight forward using terraform. 
+
+Environment variables required for the backend: https://www.terraform.io/docs/language/settings/backends/azurerm.html
+ARM_CLIENT_ID
+ARM_TENANT_ID
+ARM_SUBSCRIPTION_ID
+ARM_CLIENT_SECRET(Sensitive)
+
+Minumum variables required
+db-user - user for the db connection strings
+app-name - name for the app
+app-location - primary azure location
+environment - prd, dev, etc.
+db-password (Sensitive) - ****
+
+- `<env>.backend.hcl` needs to be passed at the point of `terraform init` (current source uses `prd` for `<env>`) E.g. `terraform init -backend-config=prd.backend.hcl`
+
+- Using terraform cloud as the secret storage for this instance. 
+
+- For this scenario the github actions workflow `apply` to `prd` from master for ‘push’ and only plans for ‘pull_request’ to `master`
 - One time setup needs to be completed by running `./docker.sh` from the `iac` folder. (you will need to init the correct terraform workspace before running this. recommend running it from a bastion host with access to the database. Otherwise a temporary network rule needs to be added to the pgsql db server. )
