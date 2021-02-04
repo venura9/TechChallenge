@@ -70,9 +70,9 @@ resource "azurerm_app_service" "webapp" {
   https_only          = true
 
   site_config {
-    app_command_line  = "serve"
-    always_on         = true
-    linux_fx_version  = replace("DOCKER|${azurerm_container_registry.acr.login_server}/${var.app-name}/${var.environment}:latest", "-", "")
+    app_command_line = "serve"
+    always_on        = true
+    linux_fx_version = replace("DOCKER|${azurerm_container_registry.acr.login_server}/${var.app-name}/${var.environment}:latest", "-", "")
     # linux_fx_version  = replace("DOCKER|servian/techchallengeapp:latest", "-", "")
     health_check_path = "/healthcheck/"
   }
@@ -166,8 +166,8 @@ resource "azurerm_postgresql_server" "pg_server" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  sku_name = "GP_Gen5_2"
-  ssl_minimal_tls_version_enforced  = "TLS1_2"
+  sku_name                         = "GP_Gen5_2"
+  ssl_minimal_tls_version_enforced = "TLS1_2"
 
   storage_mb                   = 5120
   backup_retention_days        = 7
