@@ -105,27 +105,27 @@
 
 ## Process instructions for provisioning the solution.
 - Everything is contained in the `iac` folder: https://github.com/venura9/TechChallengeApp/tree/master/iac
-- Github actions workflow does the provisioning for the environment. Workflow is at `.github/workflows/prod_pipeline.yml`
+- Github actions workflow does the provisioning for the environment. Workflow is at `.github/workflows/prod_pipeline.yml`This requires only `${secrets.TF_API_TOKEN}` configured as a secret named `TF_API_TOKEN` in the *github actions environment* attached to the workflow/pipeline. Ref: https://docs.github.com/en/actions/reference/environments
+
 - As long as the environment variables are configured along with the varibles the deployment should be straight forward using terraform. 
 
-> ** Environment variables required for the backend as per: https://www.terraform.io/docs/language/settings/backends/azurerm.html
+> ** Environment variables required for the orchestration environment as per: https://www.terraform.io/docs/language/settings/backends/azurerm.html
 > - ARM_CLIENT_ID
 > - ARM_TENANT_ID
 > - ARM_SUBSCRIPTION_ID
 > - ARM_CLIENT_SECRET(Sensitive)
 
-> ** Variables required
+> ** Variables required to be passed
 > - db-user - user for the db connection strings
 > - app-name - name for the app
 > - app-location - primary azure location
 > - environment - prd, dev, etc.
 > - db-password (Sensitive) - ****
 
-- `<env>.backend.hcl` needs to be passed at the point of `terraform init` (current source uses `prd` for `<env>`) E.g. `terraform init -backend-config=prd.backend.hcl`
+>> *** Note: Tested solution was using terraform cloud (remote backend) as the secrets storage. GitHub actions workflow needed the 
 
->> *** Note: Tested code was using terraform cloud as the secret storage. 
-
-- For this scenario the github actions workflow will `terraform apply` to environment `prd` from master for ‘push’ and only plans for ‘pull_request’
+- This solution used a remote backend and the `<env>.backend.hcl` needs to be passed at the point of running `terraform init` (current source uses `prd` for `<env>`) E.g. `terraform init -backend-config=prd.backend.hcl`. This contains the information to initialise the respective workspace for the environment being deployed. Ref: https://www.terraform.io/docs/language/settings/backends/index.html
+- For this scenario the github actions workflow will `terraform apply` to environment `prd` from master for ‘push’ and only `terraform apply` for ‘pull_request’
 - One time setup needs to be completed by running `./docker.sh` from the `iac` folder. (you will need to init the correct terraform workspace before running this. recommend running it from a bastion host with access to the database. Otherwise a temporary network rule needs to be added to the pgsql db server. )
 
 ## Workarounds 
